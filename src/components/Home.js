@@ -1,12 +1,19 @@
-import React,{useState} from "react";
+import React,{useState,useEffect} from "react";
 import {Link} from "react-router-dom";
-import Carousel from "./Carousel";
-
+import Loading from "./Loading/Loading";
 import {Button, Input, Modal, ModalBody, ModalFooter, ModalHeader} from 'reactstrap';
 import DaumPostcode from "react-daum-postcode";
+import axios from "axios";
+import cookie from "react-cookies";
 const Home = () =>{
-
         const [modal, setModal] = useState(false);
+        const [isLoading,setLoading] = useState(false);
+
+        useEffect(()=>{
+            setLoading(true);
+          setTimeout(()=>{setLoading(false);},1500)
+        },[]);
+
         const toggle = () => setModal(!modal);
         const handleComplete = (data) => {
             console.log(data);
@@ -28,9 +35,9 @@ const Home = () =>{
         return(
             <div>
                 <h1>Home</h1>
-
+                {isLoading && <Loading/>}
                 <Link to={'/Register'}>Register</Link><br/>
-
+                <Link to={'/Login'}>Login</Link><br/>
                 <Input id="address" placeholder="주소를 입력창"></Input>
                     <Button color="danger" onClick={toggle}>주소 찾기</Button>
                     <Modal isOpen={modal} toggle={toggle} >

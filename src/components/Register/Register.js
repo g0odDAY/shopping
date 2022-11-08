@@ -1,11 +1,13 @@
-import React,{useState,useEffect,useRef} from 'react';
-import {Button, Card, CardBody, Col, Collapse, Form, FormGroup, FormText, Input, Label} from "reactstrap";
+import React,{useState,useEffect} from 'react';
+import { useHistory } from 'react-router-dom';
+import {Button, Col, Collapse, Form, FormGroup, Input, Label} from "reactstrap";
 import axios from 'axios';
 import '../../css/register.css';
 import Swal from 'sweetalert2';
 import $ from 'jquery';
-import {decode} from "jsonwebtoken";
+
 const Register = () => {
+    const history = useHistory();
     let [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
     let [isValid,setValid] = useState(false);
@@ -150,39 +152,46 @@ const Register = () => {
             setIsOpen(isOpen = false);
         }
     }
-    const signUp = async (type,e) => {
-        let frm = $('form[name=frm]').serialize();
-        frm = decodeURIComponent(frm);
-        console.log(frm);
-        let jsonForm = JSON.stringify(frm).replace(/"/gi,'');
-        console.log(jsonForm);
-        jsonForm ="{\""+jsonForm.replace(/&/g,'\",\"').replace(/=/gi,'\":"')+"\"}";
-        console.log(jsonForm);
-        try{
-            const response = await fetch('/api/register?type='+type, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: jsonForm,
-            });
-            const body = await response.json();
-            if(body.result === 'succ'){
-                Swal.fire({
-                    icon: 'success',
-                    title: '회원가입이 완료되었습니다!',
-                    showConfirmButton: true,
-                });
-                this.props.history.push('/');
-            }
-        }catch(e){
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '회원가입 실패!'+e,
+    const signUp =  type => async e => {
+            if(isValid && isPassword && isCheck) {
+                let frm = $('form[name=frm]').serialize();
+                frm = decodeURIComponent(frm);
+                let jsonForm = JSON.stringify(frm).replace(/"/gi, '');
+                jsonForm = "{\"" + jsonForm.replace(/&/g, '\",\"').replace(/=/gi, '\":"') + "\"}";
+                try {
+                    const response = await fetch('/api/register?type=' + type, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: jsonForm,
+                    });
+                    const body = await response.json();
+                    Swal.fire({
+                        icon: 'success',
+                        title: '회원가입이 완료되었습니다!',
+                        showConfirmButton: true
+                    });
+                    setTimeout(()=>{
+                        history.push('/');
+                    },1500);
 
-            });
-        }
+                } catch (e) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: '회원가입 실패!' + e,
+
+                    });
+                }
+            }else{
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '필수입력값을 입력하세요',
+
+                });
+            }
     }
     return(
         <div id="register">
@@ -193,8 +202,9 @@ const Register = () => {
                     </Label>
                     <Col sm={8}>
                         <Input id="email" invalid={isInvalid} valid={isValid}  name="email" placeholder="이메일을 입력하세요." required={true} type="email"/>
+
                     </Col>
-                    <Button color="primary" onClick={e=>dupliCheck(e)}>중복 체크</Button>
+                    <Button color="primary" onClick={dupliCheck}>중복 체크</Button>
                 </FormGroup>
                 <FormGroup row>
                     <Label for="examplePassword" sm={2}>
@@ -233,7 +243,6 @@ const Register = () => {
                     <Label>{minutes}분{seconds < 10 ? `0${seconds}` : seconds}초</Label>
                 </FormGroup>
                 </Collapse>
-
                 <FormGroup row>
                     <Label for="exampleFile" sm={2}>
                         생년월일
@@ -243,7 +252,7 @@ const Register = () => {
                     </Col>
                 </FormGroup>
                 <FormGroup>
-                    <Button onClick={e=>signUp('signup',e)}>
+                    <Button onClick={signUp('signup')}>
                         회원가입
                     </Button>
                 </FormGroup>
