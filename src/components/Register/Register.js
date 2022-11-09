@@ -143,7 +143,7 @@ const Register = () => {
         const smsCode = document.getElementById('smsCode');
         console.log("code",code);
         console.log("smsCode",smsCode.value);
-        if(code == smsCode.value){
+        if(code === smsCode.value){
             Swal.fire({
                 icon: 'success',
                 title: '인증되었습니다!',

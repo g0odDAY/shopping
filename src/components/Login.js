@@ -1,20 +1,17 @@
-import React,{useState,useEffect} from 'react';
+import React from 'react';
 import { Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import axios from "axios";
 import Swal from "sweetalert2";
 import cookie from "react-cookies";
-import {useHistory} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 
 const Login = () => {
     const history = useHistory();
-
-
     const login = () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         axios.post('/api/login?type=signin', {email: email, password: password})
             .then((res) => {
-                console.log(res);
                 if(res.data=== "fail"){
                     Swal.fire({
                         icon: 'error',
@@ -35,7 +32,7 @@ const Login = () => {
                             console.log(err);
                         });
                     setTimeout(()=>{
-                        history.push('/');
+                        window.location.href="/";
                     },1500);
                 }
             })
@@ -45,7 +42,6 @@ const Login = () => {
     }
     return (
         <div id="register">
-
             <h1>Login</h1>
             <Form>
                 <FormGroup>
@@ -56,7 +52,9 @@ const Login = () => {
                     <Label for="Password">Password</Label>
                     <Input type="password" name="password" id="password" placeholder="password placeholder" />
                 </FormGroup>
+                <Link to={"/pwdReset"}>비밀번호 찾기</Link>
                 <Button onClick={login}>로그인</Button>
+                <Button onClick={()=>history.push({pathname:"/Register"})}>회원가입</Button>
             </Form>
         </div>
     )
